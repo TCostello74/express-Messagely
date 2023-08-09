@@ -6,9 +6,9 @@ class User {
   
   static async register({ username, password, first_name, last_name, phone }) {
     const result = await db.query(
-      `INSERT INTO users (username, password, first_name, last_name, phone) 
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING username, password, first_name, last_name, phone`,
+      `INSERT INTO users (username, password, first_name, last_name, phone, join_at) 
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING username, password, first_name, last_name, phone, join_at`,
       [username, password, first_name, last_name, phone]
     );
 
@@ -74,8 +74,8 @@ class User {
               m.sent_at,
               m.read_at
        FROM messages m
-       JOIN users u ON m.to_user = u.username
-       WHERE m.from_user = $1`,
+       JOIN users u ON u.username = m.to_username
+       WHERE m.from_username = $1`,
       [username]
     );
     
@@ -104,8 +104,8 @@ class User {
               m.sent_at,
               m.read_at
        FROM messages m
-       JOIN users u ON m.from_user = u.username
-       WHERE m.to_user = $1`,
+       JOIN users u ON u.username = m.from_username
+       WHERE m.to_username = $1`,
       [username]
     );
 
